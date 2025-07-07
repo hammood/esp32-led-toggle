@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ESP32 LED Control</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      background: linear-gradient(to right, #2c3e50, #3498db);
+      color: #fff;
+    }
+
+    h1 {
+      margin-bottom: 30px;
+    }
+
+    .toggle-button {
+      background-color: #27ae60;
+      border: none;
+      color: white;
+      padding: 16px 32px;
+      text-align: center;
+      font-size: 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    .toggle-button:hover {
+      background-color: #2ecc71;
+      transform: scale(1.05);
+    }
+
+    .toggle-button:active {
+      transform: scale(0.98);
+    }
+
+    .status {
+      margin-top: 20px;
+      font-size: 16px;
+      padding: 10px 20px;
+      border-radius: 5px;
+      background-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .status.success {
+      color: #2ecc71;
+    }
+
+    .status.error {
+      color: #e74c3c;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>ESP32 LED Toggle</h1>
+  <button class="toggle-button" onclick="toggleLED()">Toggle LED</button>
+  <div id="status" class="status">Waiting for action...</div>
+
+  <script>
+    async function toggleLED() {
+      const token = 'SharedAccessSignature sr=dfc106cd-f582-4589-a650-adc8c74b1302&sig=ZGCReab%2FZEunGPuYQb%2FPcdUv9%2BNZAjmJswTlhjEFMM4%3D&skn=testingLeds&se=1779728831833'; // Replace with real token
+    //  const deviceId = 'YOUR_DEVICE_ID'; // Replace this
+   //   const appSubdomain = 'YOUR_APP_SUBDOMAIN.azureiotcentral.com'; // Replace this
+
+      const statusDiv = document.getElementById('status');
+      statusDiv.className = 'status'; // reset classes
+      statusDiv.textContent = 'Sending toggle request...';
+
+      //const url = `https://${appSubdomain}/api/devices/${deviceId}/commands/toggleLED?api-version=1.1`;
+
+      const url = 'https://esp32led.azureiotcentral.com/api/devices/esp32-led-001/commands/ToggleLed1?api-version=2022-07-31';
+
+
+      try {
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Authorization': `${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: '{}' // or send payload
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          statusDiv.textContent = 'LED toggled successfully!';
+          statusDiv.classList.add('success');
+        } else {
+          const error = await response.text();
+          statusDiv.textContent = 'Error: ' + error;
+          statusDiv.classList.add('error');
+        }
+      } catch (err) {
+        statusDiv.textContent = 'Network error: ' + err.message;
+        statusDiv.classList.add('error');
+      }
+    }
+  </script>
+
+</body>
+</html>
